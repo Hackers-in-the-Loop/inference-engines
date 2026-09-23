@@ -1,23 +1,7 @@
 # Benchmarks
 
-Each recipe has an accompanying benchmark, ran from our benchmark suite.
+This directory is reserved for the common benchmark runner and results that accompany hardware and model recipes. No runner or benchmark results have been added to this repository yet.
 
+The planned location for recipe-specific benchmark material is `hardware/<hardware>/<model>/benchmarks/`. Record the exact hardware, model and weight revision, engine version, launch settings, workload, quality checks, and timing method alongside any results. Include raw measurements when possible so others can verify comparisons.
 
-Typically like:
-
-```
-- /hardware
-  - /<hardware-name>
-    - /<model-name>
-      - /benchmarks
-        - ...
-```
-
-To run do:
-
-```
-npm run launcher <hardware> <model>
-npm run benchmarks <hardware> <model>
-```
-
-Benchmarks are not ran always across all HARDWARE x MODEL. If one is missing and you have the hardware, please feel free to launch a benchmark and PR it in!
+The intended CLI is `npm run benchmarks <hardware> <model>`, but it is not available yet. Not every hardware and model combination will have a benchmark; contributions with reproducible results are welcome.
