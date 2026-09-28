@@ -2,18 +2,24 @@
 
 ## Project
 
-Inference Engines collects reproducible model and engine recipes for specific hardware. The aim is to improve speed while checking model quality, provide an OpenAI compatible serving endpoint, and export inference telemetry with OpenTelemetry. The repository is currently a scaffold: its hardware directories contain placeholders, and neither the launcher nor benchmark runner is implemented.
+Inference Engines collects reproducible model and engine recipes for specific hardware. The aim is to improve speed while checking model quality, provide an OpenAI compatible serving endpoint, and export inference telemetry with OpenTelemetry. Engines live in their own repositories; this repository is the catalog, launcher and benchmark runner that brings them together. The format is in `docs/recipe-format.md` and the reasoning and rollout in `docs/rollout-plan.md`.
 
 ## Repository map
 
-- `hardware/<hardware>/<model>/`: home for a hardware and model recipe as it is added.
-- `launcher/`: planned shared launcher. See `launcher/README.md`.
-- `benchmarks/`: planned benchmark runner and results. See `benchmarks/README.md`.
+- `hardware/<hardware>/<model>/<recipe>/`: recipes (`recipe.yaml`, optional `adapter/`, `benchmarks/`).
+- `schema/recipe.schema.json`: the manifest schema.
+- `launcher/`: the launcher and benchmark runner (Node ≥ 23.6, TypeScript run directly). See `launcher/README.md`.
+- `benchmarks/`: suite definitions (`benchmarks/suites/<name>/suite.yaml`). See `benchmarks/README.md`.
+- `docs/`: `recipe-format.md` (reference) and `rollout-plan.md` (design and rollout).
+- `.claude/skills/add-recipe-from-link/SKILL.md`: procedure for importing someone else's recipe from a link. Agents without skill support should follow that file directly.
 - `README.md`: project overview, current status, and community links.
 
 ## Working conventions
 
-- Inspect the repository before assuming a command or recipe exists. Do not present planned `npm run` commands as runnable until there is a corresponding implementation and package script.
+- Inspect the repository before assuming a command or recipe exists. `npm run launcher -- <command>` and `npm test` are implemented; check `npm run launcher -- --help` for the current commands. Suites marked `defined` or `placeholder` in `benchmarks/suites/` have not been run.
+- Run `npm run launcher -- validate` and `npm test` after changing recipes, the schema or the launcher.
+- Never edit or open anything on an upstream repository you don't own, and never contact its author on the owner's behalf. External recipes run as published, through an adapter in this repository.
+- Only change a recipe's `status` from `unverified` after running it on the listed hardware and committing the evidence.
 - Keep setup and launch steps reproducible. Record hardware details, model and weight revisions, engine version, dependencies, flags, and required environment variables. Do not commit credentials or downloaded model weights by default.
 - For performance work, state the workload and measurement method, preserve raw results where practical, and check quality as well as speed. Label unmeasured claims as goals or estimates.
 - Keep endpoint and telemetry documentation aligned with working code. Specify actual routes, payloads, and exported signals when they are implemented.

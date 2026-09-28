@@ -6,21 +6,45 @@ We use automated research and measurements to improve inference speed while chec
 
 ## Project status
 
-This repository is an early scaffold. The hardware folders are placeholders; there are no runnable recipes, launcher implementation, benchmark suite, or `package.json` here yet. The intended workflow is to download the right weights, apply any required conversions or changes, launch an OpenAI compatible endpoint, and capture inference details through OpenTelemetry. Each recipe should include the commands and evidence needed to reproduce its results.
+Engines live in their own repositories; this repository is the catalog, launcher and benchmark runner that brings them together. Each recipe is a `recipe.yaml` manifest that pins its source, credits every author and component with its license, and states exactly how it runs: container or host, privileges, which devices it writes to, and what it downloads. The launcher shows you that plan, and asks you to acknowledge any gated or non-commercial terms, before it runs anything.
+
+| Recipe | Hardware | Status |
+| --- | --- | --- |
+| [`needle3/esp32-s3/8-layer`](hardware/esp32/needle3/8-layer/) | ESP32-S3, 16 MB PSRAM, 32 MB flash | experimental: runs here at 6.16 decode tok/s, 11/12 exact calls; verified once the engine branch is public |
+| [`qwen3.8-flash-next/gb10-dgx-spark/mia-tp2`](hardware/gb10-dgx-spark/qwen3.8-flash-next/mia-tp2/) | 2× DGX Spark | draft; adapter pending ([handoff](hardware/gb10-dgx-spark/qwen3.8-flash-next/mia-tp2/HANDOFF.md)) |
+
+Unpublished Qwen 3.8 27B work on P100 is deferred. The other hardware folders (B60, BC-160, GB10/DGX Spark, Apple M-series Macs, P100, Radeon VII, V100) are placeholders; a placeholder does not mean a recipe has been tested or published here.
+
+## Quick start
+
+Requires Node ≥ 23.6 and git.
+
+```sh
+npm install
+npm run launcher -- list
+cp launcher/inventory.example.yaml ~/.config/inference-engines/inventory.yaml   # then describe your machines
+npm run launcher -- check needle3/esp32-s3/8-layer    # run plan and checks; changes nothing
+npm run launcher -- up needle3/esp32-s3/8-layer --detach
+npm run launcher -- bench needle3/esp32-s3/8-layer --suite tool-calls
+npm run launcher -- down needle3/esp32-s3/8-layer
+```
+
+See [`launcher/README.md`](launcher/README.md) for every command, and [`benchmarks/README.md`](benchmarks/README.md) for the suites.
 
 ## Repository layout
 
 | Path | Purpose |
 | --- | --- |
-| `hardware/` | Recipes grouped by hardware, then model as they are added. |
-| `launcher/` | Planned common entry point for launching a recipe. |
-| `benchmarks/` | Planned benchmark runner and recipe results. |
-
-The current hardware placeholders cover B60, BC-160, ESP32, GB10/DGX Spark, Apple M-series Macs, P100, Radeon VII, and V100. A placeholder does not mean a recipe has been tested or published here.
+| `hardware/<hardware>/<model>/<recipe>/` | Recipes: `recipe.yaml`, optional `adapter/`, workloads and committed results. |
+| `schema/` | The manifest schema. |
+| `launcher/` | Launcher and benchmark runner. |
+| `benchmarks/suites/` | Benchmark suite definitions with pinned harnesses. |
+| `docs/` | [Recipe format](docs/recipe-format.md) and [rollout plan](docs/rollout-plan.md). |
+| `.claude/skills/add-recipe-from-link/` | How an agent imports someone else's recipe from a link. |
 
 ## Contributing
 
-Start with [AGENTS.md](AGENTS.md) for the repository conventions. For a new recipe, document the exact hardware and model, upstream sources and licenses, setup and launch steps, endpoint behavior, and benchmark method and results. Please distinguish measured results from goals or estimates.
+Start with [AGENTS.md](AGENTS.md) for the repository conventions and [docs/recipe-format.md](docs/recipe-format.md) for the manifest. You can build your own engine in its own repository, following the native engine format if you like, or link someone else's recipe as published through an adapter; the `add-recipe-from-link` skill walks an agent through that. Run `npm run launcher -- validate` and `npm test` before opening a PR, and please distinguish measured results from goals or estimates.
 
 ## Community
 
