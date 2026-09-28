@@ -1,0 +1,32 @@
+# Copy to ~/.config/inference-engines/inventory.yaml and edit. Never commit your real inventory:
+# it holds addresses, interfaces and serial ports for your machines.
+#
+# address: "local" for this machine, or an SSH target reachable with keys (BatchMode=yes).
+# attrs:   exported to steps as IE_INV_<NAME>; ADDR is the address other nodes use to reach this one.
+# devices: matched against a recipe's hardware.targets. Keys other than kind, label, index,
+#          ports and lock are free-form properties (model, vram_gb, chip, psram_mb, ...).
+# lock:    optional flock file; the launcher holds it for the whole run. Point it at the
+#          same file other tools use for that device so they never collide.
+hosts:
+  - name: bench-esp32
+    address: local
+    devices:
+      - kind: mcu
+        label: board1
+        chip: esp32-s3
+        psram_mb: 16
+        flash_mb: 32
+        ports: {flash: /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_XX-if00, serial: /dev/serial/by-id/usb-1a86_USB_Single_Serial_XX-if00}
+        lock: ~/.local/state/inference-engines/locks/board1.lock
+
+  - name: spark-a
+    address: user@spark-a.local
+    attrs: {ADDR: 10.0.0.1, IFACE: enp1s0f0np0, IB_HCA: rocep1s0f0}
+    devices:
+      - {kind: gpu, label: spark-a-gpu, index: 0, model: GB10, vendor: nvidia}
+
+  - name: spark-b
+    address: user@spark-b.local
+    attrs: {ADDR: 10.0.0.2, IFACE: enp1s0f1np1, IB_HCA: rocep1s0f1}
+    devices:
+      - {kind: gpu, label: spark-b-gpu, index: 0, model: GB10, vendor: nvidia}
