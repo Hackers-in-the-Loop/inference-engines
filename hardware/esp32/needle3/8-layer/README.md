@@ -13,20 +13,19 @@ Each step runs in the ESP-IDF v5.5.2 container, with the board's serial port(s) 
 
 ## Measured on 2026-09-28
 
-These runs used board1 (ESP32-S3 N32R16) on `mbench01`, engine commit `9d2987b`, 8 layers and the smoke tier. The launcher code was uncommitted at the time, so `catalog.dirty` is true in the run configs.
+These runs used board1 (ESP32-S3 N32R16) on `mbench01`, at 8 layers, smoke tier. The engine was fetched from GitHub at the pinned commit `9d2987b`, and the catalog commit was clean.
 
 | Suite | Result | Evidence |
 | --- | --- | --- |
-| tool-calls | 12/12 succeeded, 11/12 exact calls. The miss is `heldout_free_describe` (`get_status` instead of no call), the same output as the engine repo's recorded matrix-v3 run. | [results](benchmarks/results/2026-09-28-tool-calls-smoke/) |
-| perf | Firmware-reported decode 6.157 tok/s (mean), 6.198 (pooled); prefill 6.513 tok/s (mean). 193 decode tokens. HTTP latency mean 6.66 s. Non-streaming, because the bridge doesn't stream. | [results](benchmarks/results/2026-09-28-perf-smoke/) |
-| fidelity | Host engine against the frozen golden logits: max \|Δ\| 5.3e-05 (gate 0.002), top-1 10/10. | [results](benchmarks/results/2026-09-28-fidelity-smoke/) |
+| tool-calls | 12/12 succeeded, 11/12 exact calls. The miss is `heldout_free_describe` (`get_status` instead of no call), the same output as the engine repo's recorded matrix-v3 run. | [results](benchmarks/results/2026-09-28-tool-calls-smoke-github/) |
+| perf | Firmware-reported decode 6.156 tok/s (mean), 6.197 (pooled); prefill 6.513 tok/s (mean). 193 decode tokens. HTTP latency mean 6.66 s. Non-streaming, because the bridge doesn't stream. | [results](benchmarks/results/2026-09-28-perf-smoke-github/) |
+| fidelity | Host engine against the frozen golden logits: max \|Δ\| 5.3e-05 (gate 0.002), top-1 10/10. | [results](benchmarks/results/2026-09-28-fidelity-smoke-github/) |
 
-For comparison, the engine repo's matrix-v3 eight-layer run recorded decode 6.1508 and prefill 6.5125 tok/s, with 193 decode tokens and 11/12 exact calls.
+For comparison, the engine repo's matrix-v3 eight-layer run recorded decode 6.1508 and prefill 6.5125 tok/s, with 193 decode tokens and 11/12 exact calls. The earlier runs without the `-github` suffix used the same commit from a local mirror, before it was pushed, and gave the same results.
 
 The workload is the engine's frozen 12-case project set ([`benchmarks/workload.yaml`](benchmarks/workload.yaml)). It is a project workload, not a public benchmark score. The model-card suite (BFCL v4, Mobile Actions, DroidCall, DSTC8, SNIPS) is defined in `tool-calling-card` but has not been run.
 
-## Status: experimental
+## Notes
 
-The recipe ran here with full pins, but the pinned commit is on the engine repo's `launcher-format` branch, which isn't public yet. Its benchmark binaries also still need to be uploaded as the `benchmark-assets-2026-09-27` release. After both, a run fetched from GitHub will make this `verified`.
-
-On the board used here, the USB-Serial/JTAG ports of all three boards answered esptool with "Write timeout". The inventory therefore flashes over the UART port (`ports.flash` set to the console). That setting is local to this machine, not part of the recipe.
+- **Flashing over UART.** On the machine used here, the USB-Serial/JTAG ports of all three boards answered esptool with "Write timeout". The inventory therefore flashes over the UART port (`ports.flash` set to the console). That setting is local to this machine, not part of the recipe.
+- **Benchmark assets.** The engine repo's own rerunnable benchmark package fetches its firmware images from the `benchmark-assets-2026-09-27` release, which hasn't been created yet; until it exists, that package needs `NEEDLE_ASSET_URL`. This recipe doesn't use those assets, because it builds from source and downloads the model from Hugging Face.

@@ -1,0 +1,50 @@
+ie-step: fidelity in container mode (podman, docker.io/espressif/idf:v5.5.2)
+Checking "python3" ...
+Python 3.12.3
+"python3" has been detected
+Activating ESP-IDF 5.5
+Setting IDF_PATH to '/opt/esp/idf'.
+* Checking python version ... 3.12.3
+* Checking python dependencies ... OK
+* Deactivating the current ESP-IDF environment (if any) ... OK
+* Establishing a new ESP-IDF environment ... OK
+* Identifying shell ... bash
+* Detecting outdated tools in system ... OK - no outdated tools found
+* Shell completion ... Autocompletion code generated
+
+Done! You can now compile ESP-IDF projects.
+Go to the project directory and run:
+
+  idf.py build
+cmake -S host -B host/build
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: ~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build
+cmake --build host/build
+gmake[1]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[2]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 41%] Built target needle_engine
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 52%] Built target nd_dump
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 64%] Built target nd_gtest
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 76%] Built target nd_mlpstat
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 88%] Built target nd_ftest
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[100%] Built target nd_ptest
+gmake[2]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[1]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+python3 tools/download_model.py --layers 8 --verify-only
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/model/needle3.cact: verified (8 layers)
+EG2 ok=1 bytes=313344 k=[15707584,15864256) v=[15864256,16020928)
+SINKFIX calls=80 iter_exec=1543 fixed=7 iter_saved=57 (of 1600)
+FIDELITY steps=10 vocab=8192 max_delta=5.341e-05 top1=10/10

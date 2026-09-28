@@ -1,0 +1,68 @@
+{
+  "requests": 12,
+  "succeeded": 12,
+  "exact_calls": 11,
+  "exact_call_accuracy": 0.9166666666666666,
+  "per_case": [
+    {
+      "case": "sampling5",
+      "ok": true,
+      "exact": true
+    },
+    {
+      "case": "timer60",
+      "ok": true,
+      "exact": true
+    },
+    {
+      "case": "status_heap",
+      "ok": true,
+      "exact": true
+    },
+    {
+      "case": "batch",
+      "ok": true,
+      "exact": true
+    },
+    {
+      "case": "heldout_timer45",
+      "ok": true,
+      "exact": true
+    },
+    {
+      "case": "route_translate",
+      "ok": true,
+      "exact": true
+    },
+    {
+      "case": "heldout_sampling15",
+      "ok": true,
+      "exact": true
+    },
+    {
+      "case": "heldout_batch",
+      "ok": true,
+      "exact": true
+    },
+    {
+      "case": "route_code",
+      "ok": true,
+      "exact": true
+    },
+    {
+      "case": "heldout_route_timer",
+      "ok": true,
+      "exact": true
+    },
+    {
+      "case": "heldout_route_research",
+      "ok": true,
+      "exact": true
+    },
+    {
+      "case": "heldout_free_describe",
+      "ok": true,
+      "exact": false
+    }
+  ]
+}

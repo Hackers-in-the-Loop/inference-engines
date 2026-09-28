@@ -1,6 +1,6 @@
 # Rollout plan: recipes, attribution, launcher, benchmarks
 
-Status: implemented through rollout step 6 on 2026-09-28, except the items listed under [Implementation status](#implementation-status-2026-09-28). The reference for the format as built is [recipe-format.md](recipe-format.md).
+Status: rolled out on 2026-09-28, apart from the hardware-gated and optional items listed under [Implementation status](#implementation-status-2026-09-28). The reference for the format as built is [recipe-format.md](recipe-format.md).
 
 This plan covers what must exist before the first engines launch from this repository:
 
@@ -440,17 +440,17 @@ Each step lists what "done" means.
 1. **Schema and docs: done.**
    - `schema/recipe.schema.json` and `docs/recipe-format.md`; `AGENTS.md`, the root README and the launcher and benchmarks READMEs are updated.
    - Both manifests validate: Needle, and the Spark draft.
-2. **Needle repository restructure: done locally, not pushed.**
-   - Branch `launcher-format` in the engine repo sits on top of `443b6bd`, with a local archive tag `research-archive-2026-09-27`.
-   - A fresh clone runs every step from `scripts/ie-step.sh` with only `IE_*` variables, and serves `/v1/chat/completions`.
-   - Still to do, by the owner: push the branch and tag, and upload the ten benchmark assets staged in `esp32-needle-3-release-assets/` as the `benchmark-assets-2026-09-27` release.
+2. **Needle repository restructure: done and pushed.**
+   - Branch `launcher-format` (`9d2987b`) sits on top of `443b6bd`, and the archive tag `research-archive-2026-09-27` is on GitHub.
+   - A fresh clone from GitHub runs every step from `scripts/ie-step.sh` with only `IE_*` variables, and serves `/v1/chat/completions`.
+   - Optional, for the owner: merge the branch into `main`, and upload the ten benchmark assets staged in `esp32-needle-3-release-assets/` as the `benchmark-assets-2026-09-27` release. The engine repo's own benchmark package needs that release; the recipe doesn't.
 3. **Launcher MVP: done.**
    - `list`, `show`, `check`, `up`, `down`, `status`, `validate`, `upstream`, `suites`, `bench`, `inventory`, plus the `--otel` collector sidecar.
-   - `npm test` runs 26 tests, including end-to-end runs on the local executor.
+   - `npm test` runs 27 tests, including end-to-end runs on the local executor.
    - The SSH executor has only been unit-tested.
-4. **Needle as the first recipe: experimental.**
-   - It ran through `up` on a real ESP32-S3, and tool-calls, perf and fidelity evidence is committed.
-   - It becomes `verified` once the pinned commit and release assets are public and a run fetches from GitHub.
+4. **Needle as the first recipe: verified.**
+   - It was fetched from GitHub at the pinned commit and run through `up` on a real ESP32-S3, with a clean catalog.
+   - Evidence: tool-calls 11/12 exact, decode 6.156 tok/s, fidelity max delta 5.3e-05. All three match the engine repo's recorded run.
 5. **External Spark recipe: handed off.**
    - The draft manifest and [`HANDOFF.md`](../hardware/gb10-dgx-spark/qwen3.8-flash-next/mia-tp2/HANDOFF.md) are ready for an agent working on two DGX Sparks.
    - The `/add-recipe-from-link` skill is written (`.claude/skills/add-recipe-from-link/`).

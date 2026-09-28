@@ -10,7 +10,7 @@ Engines live in their own repositories; this repository is the catalog, launcher
 
 | Recipe | Hardware | Status |
 | --- | --- | --- |
-| [`needle3/esp32-s3/8-layer`](hardware/esp32/needle3/8-layer/) | ESP32-S3, 16 MB PSRAM, 32 MB flash | experimental: runs here at 6.16 decode tok/s, 11/12 exact calls; verified once the engine branch is public |
+| [`needle3/esp32-s3/8-layer`](hardware/esp32/needle3/8-layer/) | ESP32-S3, 16 MB PSRAM, 32 MB flash | verified: 6.16 decode tok/s, 11/12 exact calls, fidelity passed |
 | [`qwen3.8-flash-next/gb10-dgx-spark/mia-tp2`](hardware/gb10-dgx-spark/qwen3.8-flash-next/mia-tp2/) | 2× DGX Spark | draft; adapter pending ([handoff](hardware/gb10-dgx-spark/qwen3.8-flash-next/mia-tp2/HANDOFF.md)) |
 
 Unpublished Qwen 3.8 27B work on P100 is deferred. The other hardware folders (B60, BC-160, GB10/DGX Spark, Apple M-series Macs, P100, Radeon VII, V100) are placeholders; a placeholder does not mean a recipe has been tested or published here.

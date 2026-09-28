@@ -2,7 +2,7 @@ schema: 1
 id: needle3/esp32-s3/8-layer
 aliases: [needle3-esp32]
 title: Needle 3 tool router on ESP32-S3 (matrix firmware)
-status: experimental   # ran on board1 2026-09-28; verified once the pinned commit and release assets are public
+status: verified
 purpose: [tool-calling, routing]
 
 attribution:
@@ -18,8 +18,7 @@ attribution:
       url: https://github.com/cactus-compute/needle
   source:
     repo: https://github.com/iammrduncan/esp32-needle-3
-    # Branch launcher-format, not yet pushed. Until it is, run with
-    # --source /path/to/a/clone (same commit, recorded as a mirror).
+    # Branch launcher-format.
     commit: 9d2987bca499a17fcc5fe7785e73d08dff8d5f22
     license: Apache-2.0
     relationship: linked
@@ -112,6 +111,11 @@ benchmarks:
     prefill_ms: needle_prefill_milliseconds_total
 
 evidence:
+  # Fetched from GitHub at the pinned commit, clean catalog (verification runs).
+  - benchmarks/results/2026-09-28-tool-calls-smoke-github
+  - benchmarks/results/2026-09-28-perf-smoke-github
+  - benchmarks/results/2026-09-28-fidelity-smoke-github
+  # Earlier runs of the same commit from a local mirror, before it was pushed.
   - benchmarks/results/2026-09-28-tool-calls-smoke
   - benchmarks/results/2026-09-28-perf-smoke
   - benchmarks/results/2026-09-28-fidelity-smoke
