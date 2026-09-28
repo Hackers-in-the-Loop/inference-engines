@@ -1,0 +1,117 @@
+schema: 1
+id: needle3/esp32-s3/8-layer
+aliases: [needle3-esp32]
+title: Needle 3 tool router on ESP32-S3 (matrix firmware)
+status: experimental   # ran on board1 2026-09-28; verified once the pinned commit and release assets are public
+purpose: [tool-calling, routing]
+
+attribution:
+  authors:
+    - {name: iammrduncan, url: https://github.com/iammrduncan, role: author}
+    - {name: Andris Gauracs, url: https://github.com/andrisgauracs/needle-2-esp32, role: upstream-engine}
+    - {name: "Cactus Compute, Inc.", url: https://github.com/cactus-compute/needle, role: model}
+  cite:
+    - title: "Needle: Automation Foundation Model for Tiny Devices"
+      year: 2026
+      organization: "Cactus Compute, Inc."
+      authors: [Henry Ndubuaku, Karen Mosoyan, Jakub Mroz, Noah Cylich, Satyajit Kumar, Parkirat Sandhu, Roman Shemet, Justin H. Lee]
+      url: https://github.com/cactus-compute/needle
+  source:
+    repo: https://github.com/iammrduncan/esp32-needle-3
+    # Branch launcher-format, not yet pushed. Until it is, run with
+    # --source /path/to/a/clone (same commit, recorded as a mirror).
+    commit: 9d2987bca499a17fcc5fe7785e73d08dff8d5f22
+    license: Apache-2.0
+    relationship: linked
+    integration: native
+  components:
+    - kind: engine
+      name: needle-2-esp32
+      repo: https://github.com/andrisgauracs/needle-2-esp32
+      commit: 61cafad7014a5664bb3ffd5f0c457ce5aa6598ae
+      license: Apache-2.0
+    - kind: weights
+      name: Cactus-Compute/needle3
+      revision: 9da75122d4ca11aa4a667281c9c8ba38a7eed679
+      sha256: c9d915eca282ed42d1a09b143b592adb4cc6744ffe2d294adf5cfc5548170c38
+      license: Apache-2.0          # model card "license: apache-2.0", checked 2026-09-27
+      terms: {gated: false, commercial: true}
+    - kind: image
+      name: docker.io/espressif/idf:v5.5.2
+      digest: sha256:05cbfc42ed2e987b8026722c15bf1d8523d3e4fd1b4ac04d2e4056f5e0918b99
+      license: Apache-2.0          # ESP-IDF; bundled toolchains carry their own licenses
+  notes: >-
+    Weights are downloaded at fetch time and never committed. The 20-layer archive is
+    sliced on the host to the requested depth; model/manifest.json in the engine repo
+    records the SHA-256 of every depth.
+
+runtime:
+  isolation: container
+  container:
+    engine: podman or docker
+    image: docker.io/espressif/idf:v5.5.2
+    digest: sha256:05cbfc42ed2e987b8026722c15bf1d8523d3e4fd1b4ac04d2e4056f5e0918b99
+  privileges: [container-runtime, serial-device-access]
+  device_writes: [flash-erase-and-write]
+  network: {listen: "127.0.0.1:$IE_HTTP_PORT", auth: false}
+  downloads:
+    - {what: Cactus-Compute/needle3 20-layer archive, approx_bytes: 35335380}
+    - {what: ESP-IDF v5.5.2 image (if not present), approx_bytes: 8087493847}
+  steps:
+    health: {isolation: host, note: curl to the bridge}
+
+hardware:
+  targets:
+    - kind: mcu
+      match: {chip: esp32-s3, psram_mb: ">=16", flash_mb: ">=32"}
+      ports: [flash, serial]
+  topology: {nodes: 1, devices_per_node: 1}
+
+params:
+  layers:
+    default: 8
+    allowed: [2, 3, 4, 5, 6, 7, 8]
+    description: Model depth. Fewer layers are faster and less accurate; 1 is diagnostic only and 9 does not fit the MMU.
+profiles:
+  fast: {layers: 4}
+
+toolchain:
+  - {name: podman or docker, check: "podman --version || docker --version"}
+  - {name: curl, check: "curl --version"}
+
+steps:
+  setup: IE_STEP_MODE=container scripts/ie-step.sh setup
+  fetch: IE_STEP_MODE=container scripts/ie-step.sh model
+  build: IE_STEP_MODE=container scripts/ie-step.sh build
+  deploy: IE_STEP_MODE=container scripts/ie-step.sh flash
+  serve: IE_STEP_MODE=container scripts/ie-step.sh serve
+  health: curl -fsS "http://127.0.0.1:$IE_HTTP_PORT/health"
+
+endpoint:
+  protocol: openai
+  port: 8081
+  model: needle3
+  extra_routes: [/v1/models (needle3, needle3-router), /complete, /route, /agent, /state, /health, /metrics]
+  limits: >-
+    Tool schemas are compiled into the firmware. Requests may offer only those tools
+    (needle3: get_status, set_sampling_interval, set_timer; needle3-router: the six
+    capability routes); anything else is a 400. Single-turn, non-streaming. A cold
+    boot takes about five minutes.
+
+telemetry:
+  metrics: {format: prometheus, path: /metrics}
+
+benchmarks:
+  suites: [perf, fidelity, tool-calls]
+  workloads: benchmarks/workload.yaml
+  fidelity: IE_STEP_MODE=container scripts/ie-step.sh fidelity
+  engine_metrics:
+    decode_tokens: needle_decode_tokens_total
+    decode_ms: needle_decode_milliseconds_total
+    prefill_tokens: needle_prefill_tokens_total
+    prefill_ms: needle_prefill_milliseconds_total
+
+evidence:
+  - benchmarks/results/2026-09-28-tool-calls-smoke
+  - benchmarks/results/2026-09-28-perf-smoke
+  - benchmarks/results/2026-09-28-fidelity-smoke

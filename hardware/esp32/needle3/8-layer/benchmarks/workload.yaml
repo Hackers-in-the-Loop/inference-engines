@@ -1,0 +1,304 @@
+# Needle 3 frozen agent-watch workload: 12 cases from iammrduncan/esp32-needle-3
+# benchmarks/tasks.json (sha256 07689be5089dcce5232d8604921777c3cd0365bf7f44305508c3d4968e768692), with the firmware's own
+# tool schemas: tools/demo-tools.json (305a99e4cc84) for "tools" cases and
+# tools/model-routes.json (419bf26a282e) for "route" cases.
+# Upstream note: .auto/prompts.json, frozen project benchmark; these are not official JevBench or Needle 3 scores.
+# Each case names the bridge model for its phase: needle3 (tools) or needle3-router (route).
+# A project workload for regression and speed; not a public benchmark score.
+cases:
+- id: sampling5
+  phase: tools
+  model: needle3
+  messages:
+  - role: user
+    content: Sample telemetry every 5 seconds
+  tools:
+  - type: function
+    function: &id001
+      name: get_status
+      description: Read device uptime, free memory, telemetry and timer status.
+      parameters:
+        type: object
+        properties: {}
+        required: []
+  - type: function
+    function: &id002
+      name: set_sampling_interval
+      description: Set how often the device samples telemetry, in seconds.
+      parameters:
+        type: object
+        properties:
+          seconds:
+            type: integer
+            minimum: 1
+            maximum: 3600
+        required:
+        - seconds
+  - type: function
+    function: &id003
+      name: set_timer
+      description: Start a countdown timer for the given number of seconds.
+      parameters:
+        type: object
+        properties:
+          seconds:
+            type: integer
+            minimum: 1
+            maximum: 3600
+        required:
+        - seconds
+  expect:
+  - name: set_sampling_interval
+    arguments:
+      seconds: 5
+  max_tokens: 64
+- id: timer60
+  phase: tools
+  model: needle3
+  messages:
+  - role: user
+    content: Start a 60 second timer
+  tools:
+  - type: function
+    function: *id001
+  - type: function
+    function: *id002
+  - type: function
+    function: *id003
+  expect:
+  - name: set_timer
+    arguments:
+      seconds: 60
+  max_tokens: 64
+- id: status_heap
+  phase: tools
+  model: needle3
+  messages:
+  - role: user
+    content: How much free memory does this device have?
+  tools:
+  - type: function
+    function: *id001
+  - type: function
+    function: *id002
+  - type: function
+    function: *id003
+  expect:
+  - name: get_status
+    arguments: {}
+  max_tokens: 64
+- id: batch
+  phase: tools
+  model: needle3
+  messages:
+  - role: user
+    content: Sample every 10 seconds and start a 30 second timer
+  tools:
+  - type: function
+    function: *id001
+  - type: function
+    function: *id002
+  - type: function
+    function: *id003
+  expect:
+  - name: set_sampling_interval
+    arguments:
+      seconds: 10
+  - name: set_timer
+    arguments:
+      seconds: 30
+  max_tokens: 64
+- id: heldout_timer45
+  phase: tools
+  model: needle3
+  messages:
+  - role: user
+    content: Start a 45 second timer
+  tools:
+  - type: function
+    function: *id001
+  - type: function
+    function: *id002
+  - type: function
+    function: *id003
+  expect:
+  - name: set_timer
+    arguments:
+      seconds: 45
+  max_tokens: 64
+- id: route_translate
+  phase: route
+  model: needle3-router
+  messages:
+  - role: user
+    content: Translate good morning into Spanish
+  tools:
+  - type: function
+    function: &id004
+      name: get_status
+      description: 'Local Needle: device status.'
+      parameters:
+        type: object
+        properties: {}
+  - type: function
+    function: &id005
+      name: set_timer
+      description: 'Local Needle: countdown timers.'
+      parameters:
+        type: object
+        properties: {}
+  - type: function
+    function: &id006
+      name: set_sampling_interval
+      description: 'Local Needle: telemetry cadence.'
+      parameters:
+        type: object
+        properties: {}
+  - type: function
+    function: &id007
+      name: translate_or_write
+      description: Route translation, rewriting and summaries to Qwen.
+      parameters:
+        type: object
+        properties: {}
+  - type: function
+    function: &id008
+      name: write_code
+      description: Route code generation, debugging and math to GPT OSS.
+      parameters:
+        type: object
+        properties: {}
+  - type: function
+    function: &id009
+      name: research_and_plan
+      description: Route complex research, design, architecture and plans to Claude Opus.
+      parameters:
+        type: object
+        properties: {}
+  expect:
+  - name: translate_or_write
+    arguments: {}
+  max_tokens: 64
+- id: heldout_sampling15
+  phase: tools
+  model: needle3
+  messages:
+  - role: user
+    content: Sample telemetry every 15 seconds
+  tools:
+  - type: function
+    function: *id001
+  - type: function
+    function: *id002
+  - type: function
+    function: *id003
+  expect:
+  - name: set_sampling_interval
+    arguments:
+      seconds: 15
+  max_tokens: 64
+- id: heldout_batch
+  phase: tools
+  model: needle3
+  messages:
+  - role: user
+    content: Set the sampling interval to 7 seconds and start a 120 second timer
+  tools:
+  - type: function
+    function: *id001
+  - type: function
+    function: *id002
+  - type: function
+    function: *id003
+  expect:
+  - name: set_sampling_interval
+    arguments:
+      seconds: 7
+  - name: set_timer
+    arguments:
+      seconds: 120
+  max_tokens: 64
+- id: route_code
+  phase: route
+  model: needle3-router
+  messages:
+  - role: user
+    content: Write a Python function to deduplicate a list
+  tools:
+  - type: function
+    function: *id004
+  - type: function
+    function: *id005
+  - type: function
+    function: *id006
+  - type: function
+    function: *id007
+  - type: function
+    function: *id008
+  - type: function
+    function: *id009
+  expect:
+  - name: write_code
+    arguments: {}
+  max_tokens: 64
+- id: heldout_route_timer
+  phase: route
+  model: needle3-router
+  messages:
+  - role: user
+    content: Start a 15 second timer
+  tools:
+  - type: function
+    function: *id004
+  - type: function
+    function: *id005
+  - type: function
+    function: *id006
+  - type: function
+    function: *id007
+  - type: function
+    function: *id008
+  - type: function
+    function: *id009
+  expect:
+  - name: set_timer
+    arguments: {}
+  max_tokens: 64
+- id: heldout_route_research
+  phase: route
+  model: needle3-router
+  messages:
+  - role: user
+    content: Research how we should restructure on-device log rotation
+  tools:
+  - type: function
+    function: *id004
+  - type: function
+    function: *id005
+  - type: function
+    function: *id006
+  - type: function
+    function: *id007
+  - type: function
+    function: *id008
+  - type: function
+    function: *id009
+  expect:
+  - name: research_and_plan
+    arguments: {}
+  max_tokens: 64
+- id: heldout_free_describe
+  phase: tools
+  model: needle3
+  messages:
+  - role: user
+    content: Describe what happens when the cache is full
+  tools:
+  - type: function
+    function: *id001
+  - type: function
+    function: *id002
+  - type: function
+    function: *id003
+  expect: []
+  max_tokens: 64

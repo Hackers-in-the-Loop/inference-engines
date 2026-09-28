@@ -1,0 +1,160 @@
+ie-step: fidelity in container mode (podman, docker.io/espressif/idf:v5.5.2)
+Checking "python3" ...
+Python 3.12.3
+"python3" has been detected
+Activating ESP-IDF 5.5
+Setting IDF_PATH to '/opt/esp/idf'.
+* Checking python version ... 3.12.3
+* Checking python dependencies ... OK
+* Deactivating the current ESP-IDF environment (if any) ... OK
+* Establishing a new ESP-IDF environment ... OK
+* Identifying shell ... bash
+* Detecting outdated tools in system ... OK - no outdated tools found
+* Shell completion ... Autocompletion code generated
+
+Done! You can now compile ESP-IDF projects.
+Go to the project directory and run:
+
+  idf.py build
+cmake -S host -B host/build
+-- The C compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: ~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build
+cmake --build host/build
+gmake[1]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[2]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[  5%] Building C object CMakeFiles/needle_engine.dir~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_cact.c.o
+[ 11%] Building C object CMakeFiles/needle_engine.dir~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_grammar.c.o
+[ 17%] Building C object CMakeFiles/needle_engine.dir~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c.o
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c: In function 'lanemix_rows':
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:518:15: warning: unused variable 'wide' [-Wunused-variable]
+  518 |     const int wide = 0;
+      |               ^~~~
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c: In function 'nd_model_open':
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:1067:33: warning: implicit declaration of function 'printf' [-Wimplicit-function-declaration]
+ 1067 |                                 printf("EG2 ok=1 bytes=%u k=[%u,%u) v=[%u,%u)\n",
+      |                                 ^~~~~~
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:8:1: note: include '<stdio.h>' or provide a declaration of 'printf'
+    7 | #include "nd_quant.h"
+  +++ |+#include <stdio.h>
+    8 | 
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:1067:33: warning: incompatible implicit declaration of built-in function 'printf' [-Wbuiltin-declaration-mismatch]
+ 1067 |                                 printf("EG2 ok=1 bytes=%u k=[%u,%u) v=[%u,%u)\n",
+      |                                 ^~~~~~
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:1067:33: note: include '<stdio.h>' or provide a declaration of 'printf'
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:1072:33: warning: incompatible implicit declaration of built-in function 'printf' [-Wbuiltin-declaration-mismatch]
+ 1072 |                                 printf("EG2 ok=0 reason=compare\n");
+      |                                 ^~~~~~
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:1072:33: note: include '<stdio.h>' or provide a declaration of 'printf'
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:1076:29: warning: incompatible implicit declaration of built-in function 'printf' [-Wbuiltin-declaration-mismatch]
+ 1076 |                             printf("EG2 ok=0 found=%u bytes=%u\n", (unsigned)nfind, (unsigned)total);
+      |                             ^~~~~~
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:1076:29: note: include '<stdio.h>' or provide a declaration of 'printf'
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c: In function 'nd_model_close':
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:1269:9: warning: incompatible implicit declaration of built-in function 'printf' [-Wbuiltin-declaration-mismatch]
+ 1269 |         printf("SINKFIX calls=%lu iter_exec=%lu fixed=%lu iter_saved=%lu (of %lu)\n",
+      |         ^~~~~~
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:1269:9: note: include '<stdio.h>' or provide a declaration of 'printf'
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c: In function 'engram_step':
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:1698:32: warning: unused variable 'vb' [-Wunused-variable]
+ 1698 |                 const void    *vb = (m->eg_vpsram &&
+      |                                ^~
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c: In function 'silu_rows':
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:2746:22: warning: unused variable 'row' [-Wunused-variable]
+ 2746 |         const float *row = c->cu + (size_t)j * c->n + lo;
+      |                      ^~~
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c: In function 'block':
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:2864:21: warning: unused variable 'L' [-Wunused-variable]
+ 2864 |     const nd_layer *L  = &m->layer[li];
+      |                     ^
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c: At top level:
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_model.c:381:13: warning: 'apply_rope' defined but not used [-Wunused-function]
+  381 | static void apply_rope(const nd_model *m, float *x, uint32_t nheads, uint32_t dim)
+      |             ^~~~~~~~~~
+[ 23%] Building C object CMakeFiles/needle_engine.dir~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_quant.c.o
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_quant.c:689:21: warning: 'dot_group_lut2' defined but not used [-Wunused-function]
+  689 | static ND_HOT float dot_group_lut2(const uint8_t *q, const float *T, uint32_t g)
+      |                     ^~~~~~~~~~~~~~
+[ 29%] Building C object CMakeFiles/needle_engine.dir~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_sample.c.o
+[ 35%] Building C object CMakeFiles/needle_engine.dir~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/engine/src/nd_tokenizer.c.o
+[ 41%] Linking C static library libneedle_engine.a
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 41%] Built target needle_engine
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 47%] Building C object CMakeFiles/nd_dump.dir/nd_dump.c.o
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/nd_dump.c: In function 'main':
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/nd_dump.c:463:26: warning: '%s' directive writing up to 511 bytes into a region of size between 1 and 2048 [-Wformat-overflow=]
+  463 |         sprintf(full, "%s%s", pre, suf);
+      |                          ^~        ~~~
+In file included from /usr/include/stdio.h:980,
+                 from ~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/nd_dump.c:9:
+In function 'sprintf',
+    inlined from 'main' at ~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/nd_dump.c:463:9:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: '__builtin___sprintf_chk' output between 1 and 2559 bytes into a destination of size 2048
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+[ 52%] Linking C executable nd_dump
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 52%] Built target nd_dump
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 58%] Building C object CMakeFiles/nd_gtest.dir/nd_gtest.c.o
+[ 64%] Linking C executable nd_gtest
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 64%] Built target nd_gtest
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 70%] Building C object CMakeFiles/nd_mlpstat.dir/nd_mlpstat.c.o
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/nd_mlpstat.c: In function 'main':
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/nd_mlpstat.c:47:70: warning: format '%u' expects argument of type 'unsigned int', but argument 6 has type 'uint64_t' {aka 'long unsigned int'} [-Wformat=]
+   47 |             printf("  factor %d: shape %u x %u  elements=%u  nbytes=%u  "
+      |                                                                     ~^
+      |                                                                      |
+      |                                                                      unsigned int
+      |                                                                     %lu
+   48 |                    "kernel_a_max_index=%u  kernel_b_max_index=%u\n",
+   49 |                    f2, a_rows, a_cols, span, fac[f2]->nbytes,
+      |                                              ~~~~~~~~~~~~~~~          
+      |                                                     |
+      |                                                     uint64_t {aka long unsigned int}
+[ 76%] Linking C executable nd_mlpstat
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 76%] Built target nd_mlpstat
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 82%] Building C object CMakeFiles/nd_ftest.dir/nd_ftest.c.o
+[ 88%] Linking C executable nd_ftest
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 88%] Built target nd_ftest
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[3]: Entering directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[ 94%] Building C object CMakeFiles/nd_ptest.dir/nd_ptest.c.o
+[100%] Linking C executable nd_ptest
+gmake[3]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+[100%] Built target nd_ptest
+gmake[2]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+gmake[1]: Leaving directory '~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/host/build'
+python3 tools/download_model.py --layers 8 --verify-only
+~/.cache/inference-engines/needle3__esp32-s3__8-layer/src/model/needle3.cact: verified (8 layers)
+EG2 ok=1 bytes=313344 k=[15707584,15864256) v=[15864256,16020928)
+SINKFIX calls=80 iter_exec=1543 fixed=7 iter_saved=57 (of 1600)
+FIDELITY steps=10 vocab=8192 max_delta=5.341e-05 top1=10/10
