@@ -117,7 +117,13 @@ export async function up(loaded: LoadedRecipe, o: RunOptions): Promise<RunState 
       }));
     }
 
-    if (!p.steps.includes('serve')) { record.finished_at = new Date().toISOString(); save(); release(); return undefined; }
+    if (!p.steps.includes('serve')) {
+      record.finished_at = new Date().toISOString();
+      save();
+      release();
+      // Nothing is left running; the state only points at the run record.
+      return { id: r.id, runDir, startedAt: record.started_at as string, httpPort: p.httpPort, url: '', serve: [], lockHolders: [] };
+    }
 
     // Serve: workers first, then the head. Each runs in its own process group with a pid file.
     const serve: ServeProc[] = [];

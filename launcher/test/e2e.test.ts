@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { parseManifest } from '../src/manifest.ts';
 import { down, readState, up, type RunOptions } from '../src/run.ts';
@@ -140,4 +140,19 @@ test('perf falls back to non-streaming when the endpoint refuses streams', async
   assert.equal(perf.succeeded, 3);
   assert.equal(perf.ttft_ms, null);
   assert.equal(perf.engine.decode_tokens, 15);
+});
+
+test('fidelity runs the engine check without serving, and gets an absolute IE_OUT', async () => {
+  const s = setup({ benchmarks: { ...(baseRecipe().benchmarks as object), fidelity: 'case "$IE_OUT" in /*) ;; *) exit 9;; esac; echo \'{"passed": true}\' > "$IE_OUT/harness-summary.json"' } });
+  const o = await opts(s.inventory);
+  const rel = join('launcher', 'test', '.tmp-fidelity-out');
+  const dir = await quietly(() => bench(s.loaded, { ...o, suite: 'fidelity', tier: 'smoke', out: rel }));
+  try {
+    assert.ok(dir.startsWith('/'));
+    assert.deepEqual(JSON.parse(readFileSync(join(dir, 'summary.json'), 'utf8')), { passed: true });
+    assert.equal(readState(s.loaded.recipe.id), undefined);
+    assert.equal(lockBusy(s.lock), false);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

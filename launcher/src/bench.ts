@@ -4,7 +4,7 @@
 import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import YAML from 'yaml';
 import { REPO_ROOT, type LoadedRecipe } from './manifest.ts';
 import { down, prepare, readState, up, type RunOptions } from './run.ts';
@@ -246,13 +246,15 @@ export async function bench(loaded: LoadedRecipe, o: BenchOptions): Promise<stri
   let state = readState(r.id);
   const startedHere = !state;
   if (!state) {
-    state = await up(loaded, { ...o, detach: true });
+    // Engine-provided checks run in the checkout and need no server (or board).
+    const only = suite.runner === 'recipe-command' ? (['setup', 'fetch'] as const).filter((x) => r.steps[x]) : undefined;
+    state = await up(loaded, { ...o, detach: true, only: only ? [...only] : o.only });
     if (!state) throw new Error('recipe did not start');
   }
   try {
     const runRecord = JSON.parse(readFileSync(join(state.runDir, 'run.json'), 'utf8'));
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const outDir = ensureDir(o.out ?? join(loaded.dir, 'benchmarks', 'results', `${stamp.slice(0, 10)}-${suite.name}-${o.tier}`));
+    const outDir = ensureDir(resolve(o.out ?? join(loaded.dir, 'benchmarks', 'results', `${stamp.slice(0, 10)}-${suite.name}-${o.tier}`)));
     const rows: Record<string, unknown>[] = [];
     const rawFile = join(outDir, 'raw.jsonl');
     writeFileSync(rawFile, '');
@@ -294,7 +296,7 @@ export async function bench(loaded: LoadedRecipe, o: BenchOptions): Promise<stri
     writeFileSync(join(outDir, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
     return outDir;
   } finally {
-    if (startedHere) await down(r.id, loaded, { quiet: true });
+    if (startedHere && readState(r.id)) await down(r.id, loaded, { quiet: true });
   }
 }
 
