@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { homedir } from 'node:os';
 import YAML from 'yaml';
 import { REPO_ROOT, type LoadedRecipe } from './manifest.ts';
 import { down, prepare, readState, up, type RunOptions } from './run.ts';
@@ -328,7 +329,10 @@ async function runRecipeCommand(loaded: LoadedRecipe, o: BenchOptions, url: stri
   const head = p.placements[0];
   const env = { ...stepEnv({ recipe: r, recipeDir: loaded.dir, placements: p.placements, me: head, params: p.params, httpPort: p.httpPort }), IE_OUT: outDir, IE_BASE_URL: url };
   const res = await runOn(head, nodeDirs(r, head).src, command, env, join(outDir, 'harness.log'), !o.quiet);
-  if (res.code !== 0) throw new Error(`fidelity command exited ${res.code}; see ${join(outDir, 'harness.log')}`);
+  // Committed logs should not carry this machine's home directory.
+  const logFile = join(outDir, 'harness.log');
+  writeFileSync(logFile, readFileSync(logFile, 'utf8').split(homedir()).join('~'));
+  if (res.code !== 0) throw new Error(`fidelity command exited ${res.code}; see ${logFile}`);
   const summaryFile = join(outDir, 'harness-summary.json');
   if (!existsSync(summaryFile)) throw new Error('fidelity command did not write harness-summary.json');
   return JSON.parse(readFileSync(summaryFile, 'utf8'));

@@ -60,7 +60,7 @@ export function activeStates(): RunState[] {
 
 function repoRevision(): { commit: string; dirty: boolean } {
   try {
-    return { commit: git(REPO_ROOT, 'rev-parse', 'HEAD'), dirty: git(REPO_ROOT, 'status', '--porcelain').length > 0 };
+    return { commit: git(REPO_ROOT, 'rev-parse', 'HEAD'), dirty: git(REPO_ROOT, 'status', '--porcelain', '--untracked-files=no').length > 0 };
   } catch {
     return { commit: 'unknown', dirty: true };
   }
