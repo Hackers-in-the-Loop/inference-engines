@@ -1,0 +1,64 @@
+# Draft. The adapter is not written yet; see HANDOFF.md in this folder.
+schema: 1
+id: qwen3.8-flash-next/gb10-dgx-spark/mia-tp2
+aliases: [mia-qwen38-flash-tp2]
+title: Qwen3.8-Flash-Next NVFP4 on two DGX Sparks (Mia AI Lab)
+status: unverified
+purpose: [general, coding]
+
+attribution:
+  authors:
+    - {name: Mia AI Lab, url: https://github.com/MiaAI-Lab, role: author}
+    - {name: getrefined, url: https://github.com/getrefined/Qwen3.8-Flash-Next-NVFP4-vLLM-DGX-Spark, role: derived-from}
+  source:
+    repo: https://github.com/MiaAI-Lab/Qwen3.8-Flash-Next-Dual-DGX-Sparks
+    commit: 2c86a1d05f93c8d3a68146a321d417ffa4ca5039   # upstream HEAD on 2026-09-27; confirm or bump
+    license: AGPL-3.0-or-later
+    relationship: linked
+    integration: adapter
+  components:
+    - kind: image
+      name: vllm/vllm-openai:qwen38-flash-next
+      digest: TODO
+      license: Apache-2.0        # vLLM; other image contents TODO
+    - kind: weights
+      name: nvidia/Qwen3.8-Flash-Next-NVFP4
+      revision: TODO
+      license: [NVIDIA Open Model License, Qwen Community License 1.0]
+      terms: {gated: false, commercial: TODO, summary: TODO}
+  notes: Upstream is run as published. Our adapter lives in adapter/; we never edit their repository.
+
+runtime:
+  isolation: container
+  container: {engine: docker, image: vllm/vllm-openai:qwen38-flash-next, digest: TODO}
+  privileges: [docker-group]
+  network: {listen: "0.0.0.0:8888", auth: TODO}
+  downloads:
+    - {what: nvidia/Qwen3.8-Flash-Next-NVFP4 checkpoint, approx_bytes: 142807662592}
+    - {what: vllm/vllm-openai:qwen38-flash-next image, approx_bytes: 20600000000}
+  host_changes: ["TODO: anything start.sh or download.sh installs or configures, such as NFS exports"]
+
+hardware:
+  targets:
+    - kind: gpu
+      match: {model: "*GB10*"}
+  topology: {nodes: 2, devices_per_node: 1}
+
+roles:
+  head: [setup, fetch, serve, health, stop]
+  worker: [setup, fetch, serve, stop]
+
+env_map:
+  HEAD_IP: ${IE_NODE_0_ADDR}
+  WORKER_IP: ${IE_NODE_1_ADDR}
+  IFACE: ${IE_INV_IFACE}
+  IB_HCA: ${IE_INV_IB_HCA}
+
+steps:
+  fetch: ${IE_ADAPTER_DIR}/fetch.sh
+  serve: ${IE_ADAPTER_DIR}/serve.sh
+  stop: ${IE_ADAPTER_DIR}/stop.sh
+
+endpoint: {protocol: openai, port: 8888, model: TODO}
+telemetry:
+  metrics: {format: prometheus, path: /metrics}
