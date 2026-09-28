@@ -1,0 +1,24 @@
+name: coding
+status: defined
+description: EvalPlus (HumanEval+, MBPP+), LiveCodeBench, Aider Polyglot, and SWE-bench Verified (card tier)
+applies_to: [coding]
+runner: command
+harness:
+  name: evalplus
+  pip: [evalplus==0.3.1]
+datasets:
+  - {name: HumanEval+ and MBPP+, url: https://github.com/evalplus/evalplus}
+  - {name: LiveCodeBench, url: https://github.com/LiveCodeBench/LiveCodeBench, revision: 28fef95ea8c9f7a547c8329f2cd3d32b92c1fa24}
+  - {name: Aider Polyglot, url: https://github.com/Aider-AI/aider, revision: 5dc9490bb35f9729ef2c95d00a19ccd30c26339c}
+  - {name: SWE-bench Verified, url: https://www.swebench.com/}
+# Smoke runs EvalPlus only. LiveCodeBench, Aider Polyglot and SWE-bench Verified are
+# card-tier items with commands still to be written. They take days on slow hardware,
+# so card runs must be resumable and state their subset size.
+# EvalPlus executes generated code: run it in a sandbox or container, never on a
+# machine with credentials.
+command: >-
+  evalplus.evaluate --model "$IE_MODEL" --dataset humaneval --backend openai
+  --base-url "$IE_BASE_URL/v1" --greedy --root "$IE_OUT"
+tiers:
+  smoke: {}
+  card: {note: add LiveCodeBench, Aider Polyglot and SWE-bench Verified commands}

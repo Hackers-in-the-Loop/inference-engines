@@ -1,0 +1,12 @@
+name: tool-calls
+status: ready
+description: Exact ordered tool calls (names and arguments) on the recipe's frozen workload
+applies_to: [tool-calling, routing]
+runner: builtin:tool-calls
+# Cases with an `expect` list from the recipe's benchmarks.workloads file. A case passes
+# only if the request succeeds and the calls match in order, names and arguments,
+# including an empty list where one is expected. This is a project workload, not a
+# public benchmark score.
+tiers:
+  smoke: {repeats: 1}
+  card: {repeats: 3}

@@ -1,0 +1,25 @@
+name: general
+status: defined
+description: MMLU-Pro, GPQA Diamond, IFEval and AIME 2025 through lm-evaluation-harness
+applies_to: [general]
+runner: command
+harness:
+  name: lm-evaluation-harness
+  pip: ["lm-eval[api]==0.4.13"]
+datasets:
+  - {name: MMLU-Pro, url: https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro}
+  - {name: GPQA Diamond, url: https://huggingface.co/datasets/Idavidrein/gpqa, note: gated; accept terms on Hugging Face and set HF_TOKEN}
+  - {name: IFEval, url: https://huggingface.co/datasets/google/IFEval}
+  - {name: AIME 2025, url: https://huggingface.co/datasets/math-ai/aime25}
+# Not yet run against any recipe. The command follows lm-eval's documented
+# local-chat-completions usage; confirm task names against the pinned version on
+# first run, then mark the suite ready. Match the model card's thinking mode and
+# sampling settings, and record them in the result.
+command: >-
+  lm_eval --model local-chat-completions
+  --model_args "model=$IE_MODEL,base_url=$IE_BASE_URL/v1/chat/completions,num_concurrent=1,max_retries=3,tokenized_requests=False"
+  --tasks mmlu_pro,gpqa_diamond_zeroshot,ifeval,aime25 --apply_chat_template
+  --output_path "$IE_OUT" ${IE_LIMIT:+--limit $IE_LIMIT}
+tiers:
+  smoke: {limit: 50}
+  card: {}

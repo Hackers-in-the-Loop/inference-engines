@@ -1,0 +1,5 @@
+name: taste
+status: placeholder
+description: Artistic and stylistic judgement (design to follow); never merged into quality scores
+applies_to: [all]
+runner: none
