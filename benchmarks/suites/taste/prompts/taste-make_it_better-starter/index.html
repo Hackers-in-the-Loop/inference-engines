@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cabin starter</title>
+<!-- Deliberately low-fidelity starter for taste-make_it_better.md: flat boxes, flat light,
+     but working WASD, collisions, a real door, a furnished interior and a roof cutaway. -->
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #9fb3c8; font-family: sans-serif; }
+  #hint { position: fixed; left: 12px; bottom: 12px; color: #fff; font-size: 13px; background: rgba(0,0,0,.35); padding: 6px 9px; border-radius: 4px; }
+  #error { position: fixed; inset: 0; display: none; place-items: center; color: #fff; background: #333; padding: 24px; text-align: center; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.webgpu.js",
+  "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.webgpu.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="hint">WASD move · drag orbit · wheel zoom · R reset</div>
+<div id="error"></div>
+<script type="module">
+import * as THREE from 'three/webgpu';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x9fb3c8);
+scene.fog = new THREE.Fog(0x9fb3c8, 30, 70);
+
+const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 200);
+const renderer = new THREE.WebGPURenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.minDistance = 8;
+controls.maxDistance = 40;
+controls.maxPolarAngle = 1.3;
+
+scene.add(new THREE.HemisphereLight(0xdde8ff, 0x556070, 1.2));
+const sun = new THREE.DirectionalLight(0xffffff, 1.0);
+sun.position.set(10, 20, 8);
+scene.add(sun);
+
+// --- helpers -------------------------------------------------------------
+const colliders = []; // axis-aligned boxes on the ground plane: [minX, minZ, maxX, maxZ]
+const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.9, ...extra });
+function box(w, h, d, x, y, z, material, solid = false) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
+  m.position.set(x, y + h / 2, z);
+  scene.add(m);
+  if (solid) colliders.push([x - w / 2, z - d / 2, x + w / 2, z + d / 2]);
+  return m;
+}
+
+// --- ground, stream, ice, bridge -----------------------------------------
+box(40, 2, 40, 0, -2, 0, mat(0xf2f5fa));
+const water = box(40, 0.1, 4, 0, -0.05, 6, mat(0x1f3b5a, { roughness: 0.2 }));
+const ripples = [];
+for (let i = 0; i < 8; i++) ripples.push(box(1.5, 0.02, 0.15, -20 + i * 5, 0.06, 4.6 + (i % 4) * 0.9, mat(0x5f86a8)));
+box(3, 0.15, 2, -12, 0.05, 5, mat(0xcfe8f0));
+box(2, 0.15, 1.5, 11, 0.05, 7, mat(0xcfe8f0));
+box(2, 0.25, 5, 0, 0, 6, mat(0x7a5536)); // bridge
+// Open water blocks walking, except over the bridge.
+colliders.push([-20, 4, -1, 8], [1, 4, 20, 8]);
+
+// --- trees ---------------------------------------------------------------
+const trunkMat = mat(0x4a3526), leafMat = mat(0xc9d9ef);
+for (const [x, z] of [[-13, -9], [-12, -2], [-2, -12], [3, -9], [7, -6], [12, -10], [13, -2], [10, 1],
+                      [-15, 12], [-8, 13], [7, 14], [14, 12], [15, -15], [-16, -16], [-16, 2]]) {
+  box(0.6, 2, 0.6, x, 0, z, trunkMat, true);
+  box(3, 1.2, 3, x, 2, z, leafMat);
+  box(2.2, 1.2, 2.2, x, 3.2, z, leafMat);
+  box(1.2, 1, 1.2, x, 4.4, z, leafMat);
+}
+
+// --- cabin ---------------------------------------------------------------
+// Footprint x -9..-1, z -8..-2, door gap in the front wall at x -5.8..-4.2.
+const wood = mat(0x8a5a3b), H = 3.5;
+const frontWalls = [
+  box(3.2, H, 0.4, -7.4, 0, -2.2, wood.clone(), true),
+  box(3.2, H, 0.4, -2.6, 0, -2.2, wood.clone(), true),
+  box(1.6, 1.1, 0.4, -5, 2.4, -2.2, wood.clone()),
+];
+box(8, H, 0.4, -5, 0, -7.8, wood, true);
+box(0.4, H, 6, -8.8, 0, -5, wood, true);
+box(0.4, H, 6, -1.2, 0, -5, wood, true);
+const glow = mat(0xffcc66, { emissive: 0xffaa33, emissiveIntensity: 1.5 });
+box(0.1, 1, 1.2, -9.05, 1.2, -5, glow);
+box(0.1, 1, 1.2, -0.95, 1.2, -5, glow);
+const roofParts = [
+  box(9, 0.6, 7, -5, H, -5, mat(0x5a3d2a)),
+  box(9, 0.6, 4, -5, H + 0.6, -5, mat(0xf4f7fb)),
+  box(0.8, 1.6, 0.8, -2.5, H + 0.6, -6.5, mat(0x555555)),
+];
+for (const p of [...roofParts, ...frontWalls]) p.material.transparent = true;
+
+// Interior: floor, table, chair, bed, stove, warm light.
+box(7.6, 0.05, 5.6, -5, 0, -5, mat(0x6b4a33));
+box(1.6, 0.8, 1, -5, 0, -5, mat(0x9b6b45), true);
+box(0.6, 0.5, 0.6, -6.2, 0, -5, mat(0x9b6b45), true);
+box(1.4, 0.6, 2.4, -7.6, 0, -6.4, mat(0x8a3d3d), true);
+box(1, 1.2, 1, -2.2, 0, -7, mat(0x333333, { emissive: 0xff5500, emissiveIntensity: 0.6 }), true);
+const hearth = new THREE.PointLight(0xffa040, 12, 9);
+hearth.position.set(-4, 2.2, -5);
+scene.add(hearth);
+
+// --- traveler and fox ----------------------------------------------------
+const traveler = new THREE.Group();
+const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1, 0.5), mat(0x334466));
+body.position.y = 0.5;
+const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), mat(0xe8c4a0));
+head.position.y = 1.25;
+const scarf = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.15, 0.52), mat(0xcc3333));
+scarf.position.y = 0.95;
+traveler.add(body, head, scarf);
+scene.add(traveler);
+
+const fox = new THREE.Group();
+const foxMat = mat(0xd9772b);
+fox.add(new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.4, 0.35), foxMat));
+const foxHead = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), foxMat);
+foxHead.position.set(0.5, 0.2, 0);
+fox.add(foxHead);
+fox.position.set(4, 0.2, 11);
+scene.add(fox);
+
+// --- falling snow (instanced cubes; WebGPU points are 1px) ---------------
+const FLAKES = 300;
+const snow = new THREE.InstancedMesh(new THREE.BoxGeometry(0.08, 0.08, 0.08), new THREE.MeshBasicMaterial({ color: 0xffffff }), FLAKES);
+const flakes = Array.from({ length: FLAKES }, (_, i) => new THREE.Vector3(((i * 37) % 40) - 20, (i * 13) % 15, ((i * 71) % 40) - 20));
+const tmp = new THREE.Object3D();
+scene.add(snow);
+
+// --- input, movement, cutaway --------------------------------------------
+const SPAWN = new THREE.Vector3(0, 0, 14);
+const keys = new Set();
+addEventListener('keydown', (e) => { keys.add(e.code); if (e.code === 'KeyR') reset(); });
+addEventListener('keyup', (e) => keys.delete(e.code));
+addEventListener('blur', () => keys.clear());
+
+function reset() {
+  traveler.position.copy(SPAWN);
+  traveler.rotation.y = Math.PI;
+  controls.target.set(SPAWN.x, 1, SPAWN.z);
+  camera.position.set(SPAWN.x + 12, 14, SPAWN.z + 14);
+  controls.update();
+}
+reset();
+
+const R = 0.35;
+const blocked = (x, z) =>
+  Math.abs(x) > 19.5 || Math.abs(z) > 19.5 ||
+  colliders.some(([ax, az, bx, bz]) => x > ax - R && x < bx + R && z > az - R && z < bz + R);
+
+let cut = 0;
+const clock = new THREE.Clock();
+function animate() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const t = clock.elapsedTime;
+
+  // Camera-relative WASD on the ground plane.
+  const fwd = new THREE.Vector3();
+  camera.getWorldDirection(fwd);
+  fwd.y = 0;
+  fwd.normalize();
+  const right = new THREE.Vector3(-fwd.z, 0, fwd.x);
+  const move = new THREE.Vector3();
+  if (keys.has('KeyW')) move.add(fwd);
+  if (keys.has('KeyS')) move.sub(fwd);
+  if (keys.has('KeyD')) move.add(right);
+  if (keys.has('KeyA')) move.sub(right);
+  if (move.lengthSq() > 0) {
+    move.normalize().multiplyScalar(4 * dt);
+    const p = traveler.position;
+    if (!blocked(p.x + move.x, p.z)) p.x += move.x;
+    if (!blocked(p.x, p.z + move.z)) p.z += move.z;
+    traveler.rotation.y = Math.atan2(move.x, move.z);
+    body.position.y = 0.5 + Math.abs(Math.sin(t * 12)) * 0.08;
+    // Keep the orbit offset while following the traveler.
+    const delta = new THREE.Vector3(p.x - controls.target.x, 0, p.z - controls.target.z);
+    controls.target.add(delta);
+    camera.position.add(delta);
+  }
+
+  // Inside the cabin: fade the roof and front wall (their collisions stay).
+  const p = traveler.position;
+  const inside = p.x > -8.6 && p.x < -1.4 && p.z > -7.6 && p.z < -2.6;
+  cut += ((inside ? 1 : 0) - cut) * Math.min(1, dt * 5);
+  for (const part of roofParts) { part.material.opacity = 1 - cut; part.visible = cut < 0.98; }
+  for (const w of frontWalls) w.material.opacity = 1 - cut * 0.8;
+
+  // Water ripples drift downstream; the hearth flickers; the fox breathes.
+  for (const r of ripples) { r.position.x += dt * 1.5; if (r.position.x > 20) r.position.x -= 40; }
+  water.material.color.setHSL(0.58, 0.5, 0.22 + Math.sin(t * 2) * 0.01);
+  hearth.intensity = 12 + Math.sin(t * 9) * 1.5;
+  fox.scale.y = 1 + Math.sin(t * 2) * 0.03;
+
+  for (let i = 0; i < FLAKES; i++) {
+    const f = flakes[i];
+    f.y -= dt * 1.2;
+    if (f.y < 0) f.y += 15;
+    tmp.position.set(f.x + Math.sin(t + i) * 0.2, f.y, f.z);
+    tmp.updateMatrix();
+    snow.setMatrixAt(i, tmp.matrix);
+  }
+  snow.instanceMatrix.needsUpdate = true;
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+try {
+  await renderer.init();
+  renderer.setAnimationLoop(animate);
+} catch (err) {
+  const el = document.getElementById('error');
+  el.style.display = 'grid';
+  el.textContent = 'Graphics initialization failed: ' + err.message;
+}
+</script>
+</body>
+</html>
