@@ -156,3 +156,33 @@ test('fidelity runs the engine check without serving, and gets an absolute IE_OU
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('command suites without a pip harness get the recipe context (taste wiring)', async () => {
+  const s = setup();
+  const taste = join(s.root, 'taste-benchmark');
+  mkdirSync(join(taste, 'scripts'), { recursive: true });
+  // A stand-in for taste-benchmark's runner: record the arguments and environment it was given.
+  writeFileSync(join(taste, 'scripts', 'run-benchmark.sh'), `#!/bin/sh
+python3 - "$@" <<'PY'
+import json, os, sys
+json.dump({"args": sys.argv[1:], "recipe": json.load(open(os.environ["IE_RECIPE_JSON"]))}, open(os.path.join(os.environ["IE_OUT"], "harness-summary.json"), "w"))
+PY
+`, { mode: 0o755 });
+  process.env.TASTE_BENCHMARK_DIR = taste;
+  const o = await opts(s.inventory);
+  try {
+    const dir = await quietly(() => bench(s.loaded, { ...o, suite: 'taste', tier: 'smoke', out: join(s.root, 'out') }));
+    const got = JSON.parse(readFileSync(join(dir, 'harness-summary.json'), 'utf8'));
+    const arg = (flag: string) => got.args[got.args.indexOf(flag) + 1];
+    assert.equal(arg('--provider'), 'openai');
+    assert.match(arg('--base-url'), /^http:\/\/127\.0\.0\.1:\d+\/v1$/);
+    assert.equal(arg('--model'), 'fake');
+    assert.equal(arg('--engine'), 'HACK-cpu-test');
+    assert.equal(arg('--model-id'), 'fake');
+    assert.equal(arg('--tasks'), 'simple,detailed,makebetter');
+    assert.equal(got.recipe.id, 'fake/cpu/test');
+    assert.equal(got.recipe.commit, s.upstream.commit);
+  } finally {
+    delete process.env.TASTE_BENCHMARK_DIR;
+  }
+});

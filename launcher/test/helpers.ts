@@ -51,7 +51,7 @@ export function baseRecipe(over: Record<string, unknown> = {}): Record<string, u
     id: 'fake/cpu/test',
     title: 'Fake engine',
     status: 'unverified',
-    purpose: ['tool-calling'],
+    purpose: ['tool-calling', 'general'],
     attribution: {
       authors: [{ name: 'Test', role: 'author' }],
       source: { repo: 'TODO', commit: 'TODO', license: 'MIT', relationship: 'linked', integration: 'native' },

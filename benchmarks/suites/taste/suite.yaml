@@ -1,5 +1,20 @@
 name: taste
-status: placeholder
-description: Artistic and stylistic judgement (design to follow); never merged into quality scores
-applies_to: [all]
-runner: none
+status: defined
+description: Taste gallery runs via taste-benchmark (simple, detailed, make-it-better); not scored, never merged into quality scores
+applies_to: [general, coding]
+runner: command
+harness:
+  name: taste-benchmark
+  repo: https://github.com/iammrduncan/taste-benchmark
+# The prompts, runner and gallery live in taste-benchmark. Point TASTE_BENCHMARK_DIR at a
+# checkout of it; results land in its demos/ folder for a PR there, and this repo keeps
+# the run-config. Each task runs in its own container holding only that task.
+# Gallery names come from the recipe's benchmarks.taste {model, engine}, else from its id.
+command: >-
+  : "${TASTE_BENCHMARK_DIR:?set TASTE_BENCHMARK_DIR to a taste-benchmark checkout}";
+  "$TASTE_BENCHMARK_DIR/scripts/run-benchmark.sh" --provider openai --base-url "$IE_BASE_URL/v1"
+  --model "$IE_TASTE_MODEL" --engine "$IE_TASTE_ENGINE" --model-id "$IE_MODEL"
+  --recipe-json "$IE_RECIPE_JSON" --tasks "${IE_TASTE_TASKS:-simple,detailed,makebetter}"
+tiers:
+  smoke: {note: all three tasks; set IE_TASTE_TASKS=simple for a quick run}
+  card: {}

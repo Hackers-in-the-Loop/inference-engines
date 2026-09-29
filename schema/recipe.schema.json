@@ -563,6 +563,21 @@
         "fidelity": {
           "type": "string",
           "description": "Command run in the source checkout by the fidelity suite; writes $IE_OUT/harness-summary.json"
+        },
+        "taste": {
+          "type": "object",
+          "description": "Model and engine names in the taste-benchmark gallery (/<model>/<engine>/<task>/)",
+          "additionalProperties": false,
+          "properties": {
+            "model": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+            },
+            "engine": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+            }
+          }
         }
       }
     },

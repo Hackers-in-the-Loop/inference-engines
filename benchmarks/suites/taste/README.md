@@ -1,21 +1,16 @@
-# Taste (placeholder)
+# Taste
 
-This suite will look at a model's "taste": things like SVG or scene generation, style imitation and design critique, judged by people or a panel. The design is deferred.
+Taste lives in its own repository, [taste-benchmark](https://github.com/iammrduncan/taste-benchmark). That repository holds the prompts (simple, detailed, make-it-better with its starter), the isolated runner, and the gallery site. It also benchmarks hosted models that have no recipe here.
 
-Prompts so far, in `prompts/`:
+To run it against a recipe:
 
-| Prompt | Input |
-| --- | --- |
-| `taste-simple.md` | None; a one-paragraph brief. |
-| `taste-detailed.md` | None; the full brief. |
-| `taste-make_it_better.md` | A starter `index.html` to elevate: [`taste-make_it_better-starter/index.html`](prompts/taste-make_it_better-starter/index.html). |
+```sh
+export TASTE_BENCHMARK_DIR=~/github/taste-benchmark
+npm run launcher -- bench <recipe-id> --suite taste
+```
 
-The starter is a deliberately low-fidelity version of the `taste-simple` scene. It uses flat boxes and flat light, but it works: Three.js 0.180.0 `WebGPURenderer` (WebGL2 fallback), WASD camera-relative movement with collisions, a bridge over the stream, a real door, a furnished interior, a roof and front-wall cutaway on entry, and R to reset. It was checked in headless Chromium through the WebGL2 fallback.
+The launcher starts the recipe, calls taste-benchmark's `scripts/run-benchmark.sh` against its OpenAI-compatible endpoint with the recipe's provenance, and stops the recipe afterwards. Each task runs in a fresh container that holds only that task. The demos land in `$TASTE_BENCHMARK_DIR/demos/<model>/<engine>/<task>/`, ready for a PR there; this repo keeps the run-config.
 
-When it's designed, the suite needs:
+Gallery names come from the recipe's `benchmarks.taste: {model, engine}`, or else from its id.
 
-- a fixed prompt set with its revision recorded;
-- a judging method (human panel, pairwise comparisons, or model judges with their pins);
-- a result format that attaches to a recipe run like the other suites.
-
-Taste results are reported on their own and are never combined into quality scores.
+Taste results are never scored or merged into quality numbers.

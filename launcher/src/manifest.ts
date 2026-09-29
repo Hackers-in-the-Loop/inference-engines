@@ -49,7 +49,7 @@ export interface Recipe {
   steps: Partial<Record<StepName, string>>;
   endpoint: { protocol: 'openai' | 'custom'; port?: number; base_path?: string; extra_routes?: string[]; limits?: string; model?: string };
   telemetry?: { metrics?: { format: 'prometheus'; path: string }; otlp?: boolean; log_parser?: string };
-  benchmarks?: { suites?: string[]; workloads?: string; fidelity?: string; engine_metrics?: Record<string, string> };
+  benchmarks?: { suites?: string[]; workloads?: string; fidelity?: string; engine_metrics?: Record<string, string>; taste?: { model?: string; engine?: string } };
   evidence?: string[];
 }
 export interface LoadedRecipe { recipe: Recipe; file: string; dir: string }

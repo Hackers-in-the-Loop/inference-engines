@@ -19,7 +19,6 @@ Suites live in `suites/<name>/suite.yaml`. Each pins its harness version and dat
 
 - `ready`: implemented and run.
 - `defined`: specified with pinned harnesses, but not yet run against any recipe.
-- `placeholder`: design pending.
 
 | Suite | Status | Applies to | What it measures |
 | --- | --- | --- | --- |
@@ -29,6 +28,6 @@ Suites live in `suites/<name>/suite.yaml`. Each pins its harness version and dat
 | `tool-calling-card` | defined | tool-calling, routing | BFCL v4, τ²-bench, and the benchmarks on the Needle 3 model card (BFCL v4, Mobile Actions, DroidCall, DSTC8, SNIPS). |
 | `general` | defined | general | MMLU-Pro, GPQA Diamond, IFEval, AIME 2025 (lm-evaluation-harness). |
 | `coding` | defined | coding | EvalPlus smoke; LiveCodeBench, Aider Polyglot and SWE-bench Verified as card-tier items. |
-| `taste` | placeholder | all | Artistic and stylistic judgement. Never merged into quality scores. |
+| `taste` | defined | general, coding | Gallery runs of the [taste-benchmark](https://github.com/iammrduncan/taste-benchmark) tasks (simple, detailed, make-it-better), each in an isolated container. Needs `TASTE_BENCHMARK_DIR`. Not scored; never merged into quality scores. |
 
 Each suite has a `smoke` tier, a small fixed subset for every change, and a `card` tier, which is the full run and comparable to model-card numbers when settings match. Compare quality against the same model on a reference engine using the same sampling and thinking settings; model-card numbers are context.

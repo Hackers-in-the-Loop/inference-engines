@@ -281,7 +281,7 @@ export async function bench(loaded: LoadedRecipe, o: BenchOptions): Promise<stri
     } else if (suite.runner === 'recipe-command') {
       summary = await runRecipeCommand(loaded, o, state.url, outDir);
     } else {
-      summary = runCommandSuite(suite, tier, o, state.url, r.endpoint.model ?? r.id, outDir);
+      summary = runCommandSuite(suite, tier, o, state.url, loaded, runRecord, outDir);
     }
 
     const config = {
@@ -302,16 +302,37 @@ export async function bench(loaded: LoadedRecipe, o: BenchOptions): Promise<stri
 }
 
 /** External harness: a pinned venv under the cache, then the tier's command with IE_* variables. */
-function runCommandSuite(suite: Suite, tier: { command?: string; limit?: number }, o: BenchOptions, url: string, model: string, outDir: string) {
+/** Gallery names for the taste benchmark: the recipe's own, else derived from its id. */
+export function tasteSlugs(r: LoadedRecipe['recipe']): { model: string; engine: string } {
+  const [model, hardware, variant] = r.id.split('/');
+  const clean = (s: string) => s.replace(/[^A-Za-z0-9._-]/g, '_');
+  return { model: r.benchmarks?.taste?.model ?? clean(model), engine: r.benchmarks?.taste?.engine ?? clean(`HACK-${hardware}-${variant}`) };
+}
+
+/**
+ * External harness: the tier's command with IE_* variables. Python harnesses get a
+ * pinned venv under the cache; others (e.g. the taste runner) bring their own runtime.
+ */
+function runCommandSuite(suite: Suite, tier: { command?: string; limit?: number }, o: BenchOptions, url: string, loaded: LoadedRecipe, runRecord: any, outDir: string) {
+  const r = loaded.recipe;
   const command = tier.command ?? suite.command;
-  if (!command || !suite.harness?.pip?.length) throw new Error(`suite ${suite.name} has no command or pinned harness`);
-  const venv = join(stateRoot(), 'bench-venvs', slug(suite.name));
-  if (!existsSync(join(venv, 'bin', 'python'))) {
-    execFileSync('python3', ['-m', 'venv', venv], { stdio: 'inherit' });
-    execFileSync(join(venv, 'bin', 'pip'), ['install', '--quiet', ...suite.harness.pip], { stdio: 'inherit' });
+  if (!command) throw new Error(`suite ${suite.name} has no command`);
+  let path = process.env.PATH ?? '';
+  if (suite.harness?.pip?.length) {
+    const venv = join(stateRoot(), 'bench-venvs', slug(suite.name));
+    if (!existsSync(join(venv, 'bin', 'python'))) {
+      execFileSync('python3', ['-m', 'venv', venv], { stdio: 'inherit' });
+      execFileSync(join(venv, 'bin', 'pip'), ['install', '--quiet', ...suite.harness.pip], { stdio: 'inherit' });
+    }
+    path = `${join(venv, 'bin')}:${path}`;
   }
+  // Provenance a harness can attach to its own results (the taste gallery shows it).
+  const recipeFile = join(outDir, 'recipe.json');
+  writeFileSync(recipeFile, JSON.stringify({ id: r.id, hardware: r.id.split('/')[1], source: r.attribution.source.repo, commit: runRecord.source?.commit ?? null }, null, 2) + '\n');
+  const taste = tasteSlugs(r);
   const env = {
-    ...process.env, PATH: `${join(venv, 'bin')}:${process.env.PATH}`, IE_BASE_URL: url, IE_MODEL: model, IE_OUT: outDir,
+    ...process.env, PATH: path, IE_BASE_URL: url, IE_MODEL: r.endpoint.model ?? r.id, IE_OUT: outDir,
+    IE_RECIPE_ID: r.id, IE_RECIPE_JSON: recipeFile, IE_TASTE_MODEL: taste.model, IE_TASTE_ENGINE: taste.engine,
     IE_LIMIT: String(o.limit ?? tier.limit ?? ''), OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? 'not-needed',
   };
   const res = spawnSync('bash', ['-c', command], { env, stdio: 'inherit' });

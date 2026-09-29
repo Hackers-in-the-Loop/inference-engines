@@ -458,7 +458,7 @@ Each step lists what "done" means.
 6. **Benchmark runner: partly done.**
    - `perf`, `fidelity` and `tool-calls` are ready and have run on Needle.
    - `tool-calling-card`, `general` and `coding` are defined with pinned harnesses but have not run. They need a model that can take arbitrary tool schemas (Needle's are compiled in) or a general LLM endpoint, which means the Spark recipe.
-   - `taste` is a placeholder.
+   - `taste` moved to its own repository, [taste-benchmark](https://github.com/iammrduncan/taste-benchmark): prompts, an isolated per-task runner and a gallery site. It also covers hosted models without a recipe. The `taste` suite here calls it through `TASTE_BENCHMARK_DIR`.
 
 ## Open questions
 
