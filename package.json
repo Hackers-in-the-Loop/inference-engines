@@ -1,0 +1,19 @@
+{
+  "name": "inference-engines",
+  "private": true,
+  "description": "Recipe catalog, launcher and benchmark runner for Inference Engines",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=23.6"
+  },
+  "scripts": {
+    "launcher": "node launcher/src/cli.ts",
+    "benchmarks": "node launcher/src/cli.ts bench",
+    "test": "node --test launcher/test/*.test.ts"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "yaml": "2.9.1"
+  }
+}

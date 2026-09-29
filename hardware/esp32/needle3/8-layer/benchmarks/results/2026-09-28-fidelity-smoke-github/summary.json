@@ -1,0 +1,10 @@
+{
+  "check": "host engine vs benchmarks/golden/logits.txt",
+  "steps": 10,
+  "vocab": 8192,
+  "max_delta": 0.00005341,
+  "threshold": 0.002,
+  "top1_agree": 10,
+  "top1_total": 10,
+  "passed": true
+}

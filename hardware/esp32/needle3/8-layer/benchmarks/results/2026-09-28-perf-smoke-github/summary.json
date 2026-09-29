@@ -1,0 +1,21 @@
+{
+  "streamed": false,
+  "requests": 12,
+  "succeeded": 12,
+  "latency_ms": {
+    "mean": 6663.14941775,
+    "p50": 6677.126614,
+    "p90": 8901.510133
+  },
+  "ttft_ms": null,
+  "client_decode_tok_s_mean": null,
+  "completion_tokens": 193,
+  "engine": {
+    "decode_tok_s_pooled": 6.197418277567273,
+    "prefill_tok_s_pooled": 6.502226305745989,
+    "decode_tok_s_mean": 6.1562729812850785,
+    "prefill_tok_s_mean": 6.513397132987802,
+    "decode_tokens": 193,
+    "prefill_tokens": 184
+  }
+}

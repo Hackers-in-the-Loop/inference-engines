@@ -1,0 +1,12 @@
+name: fidelity
+status: ready
+description: Engine output against a reference implementation of the same weights (engine-provided check)
+applies_to: [all]
+runner: recipe-command
+# Runs the recipe's benchmarks.fidelity command in the pinned source checkout, with
+# IE_OUT set to the result folder. The engine owns the reference and the metric:
+# top-1 agreement, KL or forced-token logprob against a reference forward pass, or a
+# golden comparison. The command must write IE_OUT/harness-summary.json.
+tiers:
+  smoke: {}
+  card: {}

@@ -1,0 +1,764 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hackers-in-the-Loop/inference-engines/blob/main/schema/recipe.schema.json",
+  "title": "Inference Engines recipe manifest",
+  "description": "One recipe: provenance, attribution, runtime disclosure, hardware, steps and endpoint. See docs/recipe-format.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "title",
+    "status",
+    "purpose",
+    "attribution",
+    "runtime",
+    "hardware",
+    "steps",
+    "endpoint"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*(/[a-z0-9][a-z0-9._-]*){2}$"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9._-]*$"
+      },
+      "uniqueItems": true
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "unverified",
+        "experimental",
+        "verified",
+        "deprecated"
+      ]
+    },
+    "purpose": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "tool-calling",
+          "routing",
+          "general",
+          "coding",
+          "image",
+          "video",
+          "audio",
+          "embedding"
+        ]
+      }
+    },
+    "attribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authors",
+        "source"
+      ],
+      "properties": {
+        "authors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "role"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "author",
+                  "maintainer",
+                  "upstream-engine",
+                  "model",
+                  "patches",
+                  "kernels",
+                  "drafter",
+                  "derived-from"
+                ]
+              }
+            }
+          }
+        },
+        "cite": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "title"
+            ],
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "year": {
+                "type": "integer"
+              },
+              "organization": {
+                "type": "string"
+              },
+              "authors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "repo",
+            "commit",
+            "license",
+            "relationship",
+            "integration"
+          ],
+          "properties": {
+            "repo": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string",
+              "description": "40-hex commit, or TODO while unverified"
+            },
+            "license": {
+              "$ref": "#/$defs/license"
+            },
+            "relationship": {
+              "enum": [
+                "linked",
+                "forked",
+                "vendored",
+                "reference"
+              ]
+            },
+            "integration": {
+              "enum": [
+                "native",
+                "adapter"
+              ]
+            }
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "isolation",
+        "privileges",
+        "network"
+      ],
+      "properties": {
+        "isolation": {
+          "enum": [
+            "container",
+            "vm",
+            "host"
+          ]
+        },
+        "container": {
+          "type": "object",
+          "properties": {
+            "engine": {
+              "type": "string"
+            },
+            "image": {
+              "type": "string"
+            },
+            "digest": {
+              "type": "string"
+            }
+          }
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "device_writes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "network": {
+          "type": "object",
+          "required": [
+            "listen"
+          ],
+          "properties": {
+            "listen": {
+              "type": "string"
+            },
+            "auth": {
+              "type": [
+                "boolean",
+                "string"
+              ]
+            }
+          }
+        },
+        "downloads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "what"
+            ],
+            "properties": {
+              "what": {
+                "type": "string"
+              },
+              "approx_bytes": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "host_changes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "steps": {
+          "type": "object",
+          "description": "Per-step overrides of isolation, e.g. build in a container, flash on the host",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "isolation": {
+                "enum": [
+                  "container",
+                  "vm",
+                  "host"
+                ]
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "hardware": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targets",
+        "topology"
+      ],
+      "properties": {
+        "targets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "gpu",
+                  "mcu",
+                  "cpu",
+                  "apple-silicon",
+                  "npu"
+                ]
+              },
+              "match": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                }
+              },
+              "ports": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                }
+              }
+            }
+          }
+        },
+        "topology": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "nodes",
+            "devices_per_node"
+          ],
+          "properties": {
+            "nodes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "devices_per_node": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "variants": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "nodes": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "devices_per_node": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "roles": {
+      "type": "object",
+      "description": "Per-role step lists for multi-node recipes. Rank 0 is head; workers start first.",
+      "properties": {
+        "head": {
+          "$ref": "#/$defs/stepNames"
+        },
+        "worker": {
+          "$ref": "#/$defs/stepNames"
+        }
+      },
+      "additionalProperties": false
+    },
+    "params": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "default"
+        ],
+        "properties": {
+          "default": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          },
+          "allowed": {
+            "type": "array",
+            "items": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ]
+            }
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": [
+            "string",
+            "number",
+            "boolean"
+          ]
+        }
+      }
+    },
+    "toolchain": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "check": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "env_map": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "steps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serve"
+      ],
+      "properties": {
+        "setup": {
+          "$ref": "#/$defs/step"
+        },
+        "fetch": {
+          "$ref": "#/$defs/step"
+        },
+        "build": {
+          "$ref": "#/$defs/step"
+        },
+        "deploy": {
+          "$ref": "#/$defs/step"
+        },
+        "serve": {
+          "$ref": "#/$defs/step"
+        },
+        "health": {
+          "$ref": "#/$defs/step"
+        },
+        "stop": {
+          "$ref": "#/$defs/step"
+        }
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol"
+      ],
+      "properties": {
+        "protocol": {
+          "enum": [
+            "openai",
+            "custom"
+          ]
+        },
+        "port": {
+          "type": "integer"
+        },
+        "base_path": {
+          "type": "string"
+        },
+        "extra_routes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limits": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string",
+          "description": "Model name to send in requests"
+        }
+      }
+    },
+    "telemetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "metrics": {
+          "type": "object",
+          "required": [
+            "format",
+            "path"
+          ],
+          "properties": {
+            "format": {
+              "const": "prometheus"
+            },
+            "path": {
+              "type": "string"
+            }
+          }
+        },
+        "otlp": {
+          "type": "boolean"
+        },
+        "log_parser": {
+          "type": "string"
+        }
+      }
+    },
+    "benchmarks": {
+      "type": "object",
+      "description": "Per-recipe benchmark settings passed to suites",
+      "properties": {
+        "suites": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "workloads": {
+          "type": "string",
+          "description": "Path (relative to the recipe dir) of recipe-specific workloads"
+        },
+        "engine_metrics": {
+          "type": "object",
+          "description": "Map of decode_tokens, decode_ms, prefill_tokens, prefill_ms to this engine's Prometheus metric names",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "fidelity": {
+          "type": "string",
+          "description": "Command run in the source checkout by the fidelity suite; writes $IE_OUT/harness-summary.json"
+        },
+        "taste": {
+          "type": "object",
+          "description": "Model and engine names in the taste-benchmark gallery (/<model>/<engine>/<task>/)",
+          "additionalProperties": false,
+          "properties": {
+            "model": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+            },
+            "engine": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+            }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "description": "Committed runs backing the status, relative to the recipe dir",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "license": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "step": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stepNames": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "setup",
+          "fetch",
+          "build",
+          "deploy",
+          "serve",
+          "health",
+          "stop"
+        ]
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "name",
+        "license"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "engine",
+            "weights",
+            "drafter",
+            "patches",
+            "kernels",
+            "tool",
+            "dataset",
+            "image"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "license": {
+          "$ref": "#/$defs/license"
+        },
+        "terms": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "gated": {
+              "type": "boolean"
+            },
+            "commercial": {
+              "type": [
+                "boolean",
+                "string"
+              ]
+            },
+            "share_alike": {
+              "type": "boolean"
+            },
+            "acceptance_url": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "string"
+            }
+          }
+        },
+        "acknowledge": {
+          "enum": [
+            "required",
+            "none"
+          ]
+        },
+        "profiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Only pulled in by these profiles"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "terms": {
+                "anyOf": [
+                  {
+                    "properties": {
+                      "gated": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "gated"
+                    ]
+                  },
+                  {
+                    "properties": {
+                      "commercial": {
+                        "const": false
+                      }
+                    },
+                    "required": [
+                      "commercial"
+                    ]
+                  },
+                  {
+                    "properties": {
+                      "share_alike": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "share_alike"
+                    ]
+                  }
+                ]
+              }
+            },
+            "required": [
+              "terms"
+            ]
+          },
+          "then": {
+            "required": [
+              "acknowledge"
+            ],
+            "properties": {
+              "acknowledge": {
+                "const": "required"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

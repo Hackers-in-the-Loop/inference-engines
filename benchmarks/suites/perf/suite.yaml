@@ -1,0 +1,12 @@
+name: perf
+status: ready
+description: TTFT, latency, and client and engine-reported prefill/decode tok/s on the recipe's workload
+applies_to: [all]
+runner: builtin:perf
+# Workload: the recipe's benchmarks.workloads file (OpenAI chat messages per case).
+# One unmeasured warm-up request precedes the measured ones. Streaming is requested;
+# engines that don't stream report latency only, plus engine metrics when the recipe
+# maps them in benchmarks.engine_metrics.
+tiers:
+  smoke: {repeats: 1}
+  card: {repeats: 3}

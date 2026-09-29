@@ -1,0 +1,39 @@
+{
+  "recipe": "needle3/esp32-s3/8-layer",
+  "recipe_status": "experimental",
+  "suite": "fidelity",
+  "tier": "smoke",
+  "suite_sha256": "f560824c8e7a760e02ca4ab08e5d6247f267eb95ef53916dcb74c7016d34a7fa",
+  "harness": "builtin",
+  "datasets": [],
+  "workload": null,
+  "workload_sha256": null,
+  "catalog": {
+    "commit": "2b6aaf37c052ce6a19a958a423cb24b868d6258f",
+    "dirty": false
+  },
+  "source": {
+    "repo": "https://github.com/iammrduncan/esp32-needle-3",
+    "commit": "9d2987bca499a17fcc5fe7785e73d08dff8d5f22",
+    "override": false,
+    "fetched_from": "pin"
+  },
+  "params": {
+    "layers": 8
+  },
+  "profile": null,
+  "placements": [
+    {
+      "rank": 0,
+      "role": "head",
+      "host": "mbench01",
+      "devices": [
+        "board1"
+      ]
+    }
+  ],
+  "acknowledgments": [],
+  "started_at": "2026-09-28T21-49-44-314Z",
+  "finished_at": "2026-09-28T21:49:47.119Z",
+  "runner": "node v24.21.0"
+}

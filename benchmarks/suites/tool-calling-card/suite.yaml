@@ -1,0 +1,21 @@
+name: tool-calling-card
+status: defined
+description: Public tool-calling benchmarks reported on model cards (BFCL v4, tau2-bench, and the Needle 3 card set)
+applies_to: [tool-calling, routing]
+runner: command
+harness:
+  name: bfcl-eval
+  pip: [bfcl-eval==2026.3.23]
+datasets:
+  - {name: BFCL v4, url: https://github.com/ShishirPatil/gorilla/tree/main/berkeley-function-call-leaderboard}
+  - {name: tau2-bench, url: https://github.com/sierra-research/tau2-bench, revision: b7ea9074c1cba482b30687fecdb5c8425fd6f619}
+  - {name: Needle 3 card set (BFCL v4, Mobile Actions, DroidCall, DSTC8, SNIPS), url: https://github.com/cactus-compute/needle#benchmarks}
+# Not run yet, so no command is committed. When writing one:
+# - BFCL needs arbitrary tool schemas per case. Needle's firmware has fixed schemas, so its
+#   BFCL run goes through the host build of the same engine, not the board.
+# - tau2-bench is multi-turn and needs a user-simulator model; use it for larger models.
+# - Match the model card's settings (AST match for BFCL, exact call for Mobile Actions,
+#   ordered exact calls for DroidCall, field F1 for DSTC8 and SNIPS).
+tiers:
+  smoke: {limit: 200, note: BFCL simple, multiple, parallel, irrelevance subsets}
+  card: {note: full test splits as reported on the model card}
